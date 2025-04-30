@@ -2,6 +2,23 @@
 
 Jess and Rob will present Fabric Magic at PSConfEU 2025... but what is the magic?
 
+## Plan
+- some time talking about what Fabric is and how people can support that
+- powershell
+  - create capacity
+  - create 6 workspaces (dev,dev-dwh, etc)
+  - create dwh
+  - create pipeliney things
+  - fabric-cicd deployments
+  - deployment pipelines for dwh
+    - oh look the change didn't actually go into source control
+- talk about some of the missing parts
+  - if you delete something the name isn't immedieatly deleted - it takes 'some time' to be able to reuse it
+- talk about cicd options as we go
+- aimed at admins
+  - we haven't and won't talk about capacity units, throttling, smoothing... etc
+  - and how the graph to show why you're out of capacity.. is within the capacity.. that has no capacity...
+
 ## Abstract
 
 Microsoft Fabric for the PowerShell Pro
