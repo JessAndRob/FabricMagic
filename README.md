@@ -2,6 +2,8 @@
 
 Jess and Rob will present Fabric Magic at PSConfEU 2025... but what is the magic?
 
+The Slides should be [here](https://sewells.sharepoint.com/:f:/r/sites/JessAndRob/Shared%20Documents/PsConfEU?csf=1&web=1&e=3MclgQ)
+
 ## Plan
 - some time talking about what Fabric is and how people can support that
 - powershell
