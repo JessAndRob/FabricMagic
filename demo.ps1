@@ -92,9 +92,8 @@ $workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
 }
 
 
-# Let's put a pipeline in the non dwh ones - #TODO: this doesn't work
+# Let's put a pipeline in the non dwh ones
 # these are data pipelines, for moving things around
-# [2025-05-17 15:37:44] [Error] Failed to create DataPipeline. Error: Response status code does not indicate success: 400 (Bad Request).      
 $workspaces | Where-Object { $_ -notlike "*dwh*" } | ForEach-Object {
     $params = @{
         WorkspaceId = (Get-FabricWorkspace -WorkspaceName $_).Id
