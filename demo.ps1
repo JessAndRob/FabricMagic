@@ -91,6 +91,13 @@ $workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
     New-FabricLakehouse @params
 }
 
+and a sql database
+
+and a something else
+
+then get item from workspace (explain no pipeline support ask for help)
+
+then open portal and show
 
 # Let's put a pipeline in the non dwh ones
 # these are data pipelines, for moving things around
@@ -103,7 +110,7 @@ $workspaces | Where-Object { $_ -notlike "*dwh*" } | ForEach-Object {
     New-FabricDataPipeline @params
 }
 
-
+# DONT FORGET TO CLEAN UP AFTERWARDS
 # clear up workspaces
 $workspaces | ForEach-Object {
     Remove-FabricWorkspace -WorkspaceId (Get-FabricWorkspace -WorkspaceName $_).Id
