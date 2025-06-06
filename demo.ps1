@@ -1,21 +1,31 @@
 <#
+PowerShell 💜 Fabric
+- Remember all the deployment tools rely on API calls
 
-- create capacity
-- create 6 workspaces (dev,dev-dwh, etc)
-- create dwh
-- create pipeliney things
+- Let's look at how to deploy Fabric resources using PowerShell
+    - create capacity
+    - create 6 workspaces (dev,dev-dwh, etc)
+    - create data things - data warehouse, lakehouse, sql database
+    - create pipeliney things - not cicd... but data pipelines
 
-- fabric-cicd deployments
-- deployment pipelines for dwh
-- oh look the change didn't actually go into source control
+- Then we'll take a look at the Fabric GUI 😱
+    - deployment pipelines for dwh
+    - oh look the change didn't actually go into source control
 
 #>
+
+<#########################################
+We can just call the API with PowerShell
+##########################################>
 
 # connecting with Azure PowerShell to get a token
 Connect-AzAccount
 
 # get the token for the Fabric API
-$token = (Get-AzAccessToken -AsSecureString:$false -ResourceUrl "https://api.fabric.microsoft.com").Token
+$secureToken = (Get-AzAccessToken -AsSecureString:$false -ResourceUrl "https://api.fabric.microsoft.com").Token
+
+# because -AsSecureString:$false still gives me a secure string, I need to convert it to a regular string
+$token = $secureToken | ConvertFrom-SecureString -AsPlainText
 $headers = @{
     'Content-Type'  = 'application/json'
     'Authorization' = "Bearer $token"
@@ -34,12 +44,20 @@ $apiParams = @{
 }
 Invoke-RestMethod @apiParams
 
-# But this is PSConfEU, so let's use the FabricTools module instead of REST API calls
+<#########################################
+# Introducing FabricTools!
 
-# get the dev module right now - will change to proper module
-Import-Module C:\github\FabricTools\output\module\FabricTools\0.0.1\FabricTools.psd1 -force
+# But this is PSConfEU, and we like PowerShell 
+# so let's use the FabricTools module instead of REST API calls
+##########################################>
 
-# Since we ran Connect-AzAccount, we can use the FabricTools module to do the rest
+# Get the FabricTools module imported
+Import-Module FabricTools
+
+# Lets connect to Fabric
+Connect-FabricAccount
+
+# Let's see if we can get Workspaces
 Get-FabricWorkspace | Format-Table
 
 # Get that workspace that I created 
@@ -68,7 +86,7 @@ $workspaces | ForEach-Object {
 # to be able to use the workspace we need a capacity
 Get-FabricCapacity | Format-Table
 
-# let's select using out-gridview
+# let's select using Out-GridView
 $capacity = Get-FabricCapacity | Out-GridView -PassThru
 
 # add capacity to the workspaces
@@ -80,7 +98,6 @@ $workspaces | ForEach-Object {
     Register-FabricWorkspaceToCapacity @params
 }
 
-
 # let's put a lakehouse in the dwh workspaces
 $workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
     $params = @{
@@ -91,13 +108,15 @@ $workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
     New-FabricLakehouse @params
 }
 
-and a sql database
-
-and a something else
-
-then get item from workspace (explain no pipeline support ask for help)
-
-then open portal and show
+# and a sql database
+$workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
+    $params = @{
+        WorkspaceId = (Get-FabricWorkspace -WorkspaceName $_).Id
+        Name = "MySqlDatabase"
+        Description = "This is a SQL database created by FabricTools."
+    }
+    New-FabricSqlDatabase @params
+}
 
 # Let's put a pipeline in the non dwh ones
 # these are data pipelines, for moving things around
@@ -110,7 +129,13 @@ $workspaces | Where-Object { $_ -notlike "*dwh*" } | ForEach-Object {
     New-FabricDataPipeline @params
 }
 
-# DONT FORGET TO CLEAN UP AFTERWARDS
+# Let's get items from a workspace
+Get-FabricWorkspace -WorkspaceName dev-dwh | Get-FabricItem
+
+# Let's go to the portal
+Invoke-Item "https://fabric.microsoft.com"
+
+# DON'T FORGET TO CLEAN UP AFTERWARDS
 # clear up workspaces
 $workspaces | ForEach-Object {
     Remove-FabricWorkspace -WorkspaceId (Get-FabricWorkspace -WorkspaceName $_).Id
