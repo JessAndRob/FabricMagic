@@ -5,9 +5,7 @@ Describe "These should all pass before the demo" {
         $lakehousesTesting = $workspacesTesting | ForEach-Object {
             Get-FabricLakehouse -WorkspaceId $_.id
         }
-        $sqlDatabasesTesting = $workspacesTesting | ForEach-Object {
-            Get-FabricSqlDatabase -WorkspaceId $_.id
-        }
+        $sqlDatabasesTesting = $workspacesTesting | Get-FabricSqlDatabase
         $dataPipelinesTesting = $workspacesTesting | ForEach-Object {
             Get-FabricDataPipeline -WorkspaceId $_.id
         }
@@ -22,11 +20,11 @@ Describe "These should all pass before the demo" {
     Context "Workspaces" {
         It "Should not have the <_> workspace" -TestCases @('Workspace-API', 'dev', 'dev-dwh', 'test', 'test-dwh', 'prod', 'prod-dwh') {
 
-            $workspacesTesting.displayName | Should -Not -Contain $_
+            $workspacesTesting.displayName | Should -Not -Contain $_ -Because "We need to demo creating $_ workspace"
         }
     }
     Context "Lakehouses" {
-        It "Should not have the <_> lakehouse" -TestCases @('LosAngelese', 'MyLakehouse') {
+        It "Should not have the <_> lakehouse" -TestCases @('LosAngeles', 'MyLakehouse') {
 
             $lakehousesTesting.displayName | Should -Not -Contain $_
         }
