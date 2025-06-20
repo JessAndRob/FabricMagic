@@ -21,6 +21,8 @@ We can just call the API with PowerShell
 # connecting with Azure PowerShell to get a token
 Connect-AzAccount
 
+Invoke-Pester
+
 # get the token for the Fabric API
 $secureToken = (Get-AzAccessToken -AsSecureString:$false -ResourceUrl "https://api.fabric.microsoft.com").Token
 
@@ -40,19 +42,22 @@ $apiParams = @{
     Uri = "https://api.fabric.microsoft.com/v1/workspaces"
     Method = 'Post'
     Headers = $headers
-    Body = ($body | ConvertTo-Json) 
+    Body = ($body | ConvertTo-Json)
 }
 Invoke-RestMethod @apiParams
 
 <#########################################
 # Introducing FabricTools!
 
-# But this is PSConfEU, and we like PowerShell 
+# But this is PSConfEU, and we like PowerShell
 # so let's use the FabricTools module instead of REST API calls
 ##########################################>
 
 # Get the FabricTools module imported
 Import-Module FabricTools
+
+# show the version
+Get-PSResource FabricTools
 
 # Lets connect to Fabric
 Connect-FabricAccount
@@ -60,7 +65,7 @@ Connect-FabricAccount
 # Let's see if we can get Workspaces
 Get-FabricWorkspace | Format-Table
 
-# Get that workspace that I created 
+# Get that workspace that I created
 Get-FabricWorkspace -WorkspaceName "Workspace-API" -OutVariable workspace
 
 # Let's remove that one
@@ -68,20 +73,22 @@ Remove-FabricWorkspace -WorkspaceId $workspace.Id
 
 # and then let's create 6 for our full demos
 $workspaces = @(
-    "dev",
-    "dev-dwh",
-    "test",
-    "test-dwh",
-    "prod",
-    "prod-dwh"
+    'dev',
+    'dev-dwh',
+    'test',
+    'test-dwh',
+    'prod',
+    'prod-dwh'
 )
 $workspaces | ForEach-Object {
     $params = @{
-        WorkspaceName        = $_
+        WorkspaceName = $_
         WorkspaceDescription = ("This is the {0} workspace created by FabricTools." -f $_)
     }
     New-FabricWorkspace @params
 }
+
+$demoWorkspaces = Get-FabricWorkspace | Where-Object { $_.displayName -in $workspaces }
 
 # to be able to use the workspace we need a capacity
 Get-FabricCapacity | Format-Table
@@ -90,28 +97,28 @@ Get-FabricCapacity | Format-Table
 $capacity = Get-FabricCapacity | Out-GridView -PassThru
 
 # add capacity to the workspaces
-$workspaces | ForEach-Object {
+$demoWorkspaces | ForEach-Object {
     $params = @{
-        WorkspaceId = (Get-FabricWorkspace -WorkspaceName $_).Id
+        WorkspaceId = $_.id
         CapacityId  = $capacity.Id
     }
     Register-FabricWorkspaceToCapacity @params
 }
 
 # let's put a lakehouse in the dwh workspaces
-$workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
+$demoWorkspaces | Where-Object { $_.displayName -like "*dwh*" } | ForEach-Object {
     $params = @{
-        WorkspaceId = (Get-FabricWorkspace -WorkspaceName $_).Id
-        LakehouseName = "MyLakehouse"
-        LakehouseDescription = "This is a lakehouse created by FabricTools."
+        WorkspaceId = $_.id
+        LakehouseName = "LosAngeles"
+        LakehouseDescription = ("This is the {0} lakehouse created by FabricTools." -f $_.displayName)
     }
     New-FabricLakehouse @params
 }
 
 # and a sql database
-$workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
+$demoWorkspaces | Where-Object { $_.displayName -like "*dwh*" }| ForEach-Object {
     $params = @{
-        WorkspaceId = (Get-FabricWorkspace -WorkspaceName $_).Id
+        $workspaceId = $_.id
         Name = "MySqlDatabase"
         Description = "This is a SQL database created by FabricTools."
     }
@@ -120,11 +127,11 @@ $workspaces | Where-Object { $_ -like "*dwh*" } | ForEach-Object {
 
 # Let's put a pipeline in the non dwh ones
 # these are data pipelines, for moving things around
-$workspaces | Where-Object { $_ -notlike "*dwh*" } | ForEach-Object {
+$demoWorkspaces | Where-Object { $_.displayName -notlike "*dwh*" } | ForEach-Object {
     $params = @{
-        WorkspaceId = (Get-FabricWorkspace -WorkspaceName $_).Id
-        DataPipelineName = "MyPipeline"
-        DataPipelineDescription = "This is a pipeline created by FabricTools."
+        workspaceId = $_.id
+        DataPipelineName = "JefferySnoverKingof"
+        DataPipelineDescription = "This is a pipeline created by FabricTools for {0}." -f $_.displayName
     }
     New-FabricDataPipeline @params
 }
