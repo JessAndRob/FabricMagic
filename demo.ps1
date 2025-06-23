@@ -148,6 +148,6 @@ Invoke-Item "https://fabric.microsoft.com"
 
 # DON'T FORGET TO CLEAN UP AFTERWARDS
 # clear up workspaces
-$workspaces | ForEach-Object {
-    Remove-FabricWorkspace -WorkspaceId (Get-FabricWorkspace -WorkspaceName $_).Id
+$demoWorkspaces | Where-Object { $_.displayName -in $workspaces } | ForEach-Object {
+    Remove-FabricWorkspace -WorkspaceId $_.id
 }
