@@ -21,7 +21,11 @@ We can just call the API with PowerShell
 # connecting with Azure PowerShell to get a token
 Connect-AzAccount
 
-Invoke-Pester
+# Connect to Fabric Account
+Connect-FabricAccount
+
+# Let's run some tests to make sure we don't have any things left over from previous demos
+Invoke-Pester -Output Detailed
 
 # get the token for the Fabric API
 $secureToken = (Get-AzAccessToken -AsSecureString:$false -ResourceUrl "https://api.fabric.microsoft.com").Token
