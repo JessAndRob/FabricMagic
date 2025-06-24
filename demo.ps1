@@ -25,7 +25,11 @@ Connect-AzAccount
 Connect-FabricAccount
 
 # Let's run some tests to make sure we don't have any things left over from previous demos
-Invoke-Pester -Output Detailed
+$PesterResults = Invoke-Pester -Output None -PassThru
+
+# Make it look pretty using PesterExplorer
+# https://github.com/HeyItsGilbert/PesterExplorer
+Show-PesterResultTree $PesterResults
 
 # get the token for the Fabric API
 $secureToken = (Get-AzAccessToken -AsSecureString:$false -ResourceUrl "https://api.fabric.microsoft.com").Token
