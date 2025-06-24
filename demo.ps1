@@ -18,6 +18,8 @@ PowerShell 💜 Fabric
 We can just call the API with PowerShell
 ##########################################>
 
+# Need to run this so that we dont get a warning with the Pester Explorer
+ $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 # connecting with Azure PowerShell to get a token
 Connect-AzAccount
 
