@@ -90,11 +90,13 @@ $workspaces | ForEach-Object {
 
 $demoWorkspaces = Get-FabricWorkspace | Where-Object { $_.displayName -in $workspaces }
 
+$demoWorkspaces
+
 # to be able to use the workspace we need a capacity
-Get-FabricCapacity | Format-Table
+Get-FabricCapacity -OutVariable cap | Format-Table
 
 # let's select using Out-GridView
-$capacity = Get-FabricCapacity | Out-GridView -PassThru
+$capacity = $cap | Out-GridView -PassThru
 
 # add capacity to the workspaces
 $demoWorkspaces | ForEach-Object {
@@ -125,6 +127,8 @@ $demoWorkspaces | Where-Object { $_.displayName -like "*dwh*" }| ForEach-Object 
     New-FabricSqlDatabase @params
 }
 
+$demoworkspaces | Get-FabricSQLDatabase
+
 # Let's put a pipeline in the non dwh ones
 # these are data pipelines, for moving things around
 $demoWorkspaces | Where-Object { $_.displayName -notlike "*dwh*" } | ForEach-Object {
@@ -138,6 +142,9 @@ $demoWorkspaces | Where-Object { $_.displayName -notlike "*dwh*" } | ForEach-Obj
 
 # Let's get items from a workspace
 Get-FabricWorkspace -WorkspaceName dev-dwh | Get-FabricItem
+
+# Lets see all of the resources that have commands.
+Get-Command -Module FabricTools -Verb Get
 
 # Let's go to the portal
 Start-Process "https://fabric.microsoft.com"
