@@ -50,6 +50,8 @@ $apiParams = @{
 }
 Invoke-RestMethod @apiParams
 
+Start-Process "https://fabric.microsoft.com"
+
 <#########################################
 # Introducing FabricTools!
 
@@ -57,14 +59,8 @@ Invoke-RestMethod @apiParams
 # so let's use the FabricTools module instead of REST API calls
 ##########################################>
 
-# Get the FabricTools module imported
-Import-Module FabricTools
-
 # show the version
 Get-PSResource FabricTools
-
-# Lets connect to Fabric
-Connect-FabricAccount
 
 # Let's see if we can get Workspaces
 Get-FabricWorkspace | Format-Table
@@ -122,7 +118,7 @@ $demoWorkspaces | Where-Object { $_.displayName -like "*dwh*" } | ForEach-Object
 # and a sql database
 $demoWorkspaces | Where-Object { $_.displayName -like "*dwh*" }| ForEach-Object {
     $params = @{
-        $workspaceId = $_.id
+        workspaceId = $_.id
         Name = "MySqlDatabase"
         Description = "This is a SQL database created by FabricTools."
     }
@@ -144,10 +140,10 @@ $demoWorkspaces | Where-Object { $_.displayName -notlike "*dwh*" } | ForEach-Obj
 Get-FabricWorkspace -WorkspaceName dev-dwh | Get-FabricItem
 
 # Let's go to the portal
-Invoke-Item "https://fabric.microsoft.com"
+Start-Process "https://fabric.microsoft.com"
 
 # DON'T FORGET TO CLEAN UP AFTERWARDS
 # clear up workspaces
 $demoWorkspaces | Where-Object { $_.displayName -in $workspaces } | ForEach-Object {
-    Remove-FabricWorkspace -WorkspaceId $_.id
+    Remove-FabricWorkspace -WorkspaceId $_.id -Confirm:$false
 }
